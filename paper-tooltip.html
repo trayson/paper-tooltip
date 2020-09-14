@@ -226,8 +226,10 @@ Custom property | Description | Default
       }
     </style>
 
-    <div id="tooltip" class="hidden">
-      <slot></slot>
+    <div 
+      id="tooltip" 
+      class="hidden"
+      inner-h-t-m-l="[[help]]">
     </div>
   </template>
 
@@ -370,6 +372,10 @@ Custom property | Description | Default
         this.$.tooltip.classList.add('cancel-animation');
       },
 
+      clickButton: function () {
+        this._showing ? this.hide() : this.show();
+      },
+
       /**
        * Shows the tooltip programatically
        * @return {void}
@@ -378,21 +384,6 @@ Custom property | Description | Default
         // If the tooltip is already showing, there's nothing to do.
         if (this._showing)
           return;
-
-        if (Polymer.dom(this).textContent.trim() === '') {
-          // Check if effective children are also empty
-          var allChildrenEmpty = true;
-          var effectiveChildren = Polymer.dom(this).getEffectiveChildNodes();
-          for (var i = 0; i < effectiveChildren.length; i++) {
-            if (effectiveChildren[i].textContent.trim() !== '') {
-              allChildrenEmpty = false;
-              break;
-            }
-          }
-          if (allChildrenEmpty) {
-            return;
-          }
-        }
 
         this._showing = true;
         this.$.tooltip.classList.remove('hidden');
@@ -489,14 +480,10 @@ Custom property | Description | Default
       },
       _addListeners: function() {
         if (this._target) {
-          this.listen(this._target, 'mouseenter', 'show');
-          this.listen(this._target, 'focus', 'show');
-          this.listen(this._target, 'mouseleave', 'hide');
-          this.listen(this._target, 'blur', 'hide');
-          this.listen(this._target, 'tap', 'hide');
+          this.listen(this._target, 'tap', 'clickButton');
         }
         this.listen(this.$.tooltip, 'animationend', '_onAnimationEnd');
-        this.listen(this, 'mouseenter', 'hide');
+        this.listen(this, 'tap', 'hide');
       },
       _findTarget: function() {
         if (!this.manualMode)
@@ -567,15 +554,11 @@ Custom property | Description | Default
       },
       _removeListeners: function() {
         if (this._target) {
-          this.unlisten(this._target, 'mouseenter', 'show');
-          this.unlisten(this._target, 'focus', 'show');
-          this.unlisten(this._target, 'mouseleave', 'hide');
-          this.unlisten(this._target, 'blur', 'hide');
-          this.unlisten(this._target, 'tap', 'hide');
+          this.unlisten(this._target, 'tap', 'clickButton');
         }
         this.unlisten(this.$.tooltip, 'animationend', '_onAnimationEnd');
-        this.unlisten(this, 'mouseenter', 'hide');
-      },
+        this.unlisten(this, 'tap', 'hide');
+      }
     });
   </script>
 </dom-module>
